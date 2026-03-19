@@ -1,6 +1,8 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import UserApiViewSet
+from .views import UserApiViewSet, UserView
+
+
 
 
 router_user = DefaultRouter()
@@ -10,4 +12,6 @@ router_user.register(
     basename='users'
 )
 
-url_patterns = []
+urlpatterns = [
+    path('auth/me', UserView.as_view())
+]
