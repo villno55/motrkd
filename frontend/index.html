@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema Observador</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 600px;
+            margin: 50px auto;
+            border: 2px solid black;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid black;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            border-bottom: 1px solid black;
+            padding-bottom: 5px;
+        }
+
+        button {
+            background-color: black;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 6px;
+            margin-top: 5px;
+            border: 1px solid black;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        hr {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>SISTEMA OBSERVADOR</h1>
+
+    
+    <h2>Lista</h2>
+    <button onclick="cargarObservaciones()">Cargar</button>
+    <ul id="lista"></ul>
+
+    <hr>
+
+    
+    <h2>Buscar por ID</h2>
+    <input type="number" id="idObs" placeholder="Ingrese ID">
+    <button onclick="buscarPorId()">Buscar</button>
+    <p id="detalle"></p>
+
+    <hr>
+
+    
+    <h2>Crear</h2>
+
+    <input type="text" id="aprendiz" placeholder="Aprendiz">
+
+    <select id="tipo">
+        <option value="">Seleccione tipo</option>
+        <option value="academica">Académica</option>
+        <option value="convivencial">Convivencial</option>
+    </select>
+
+    <select id="severidad">
+        <option value="">Seleccione severidad</option>
+        <option value="leve">Leve</option>
+        <option value="moderada">Moderada</option>
+        <option value="grave">Grave</option>
+    </select>
+
+    <input type="text" id="descripcion" placeholder="Descripción">
+
+    <button onclick="crearObservacion()">Crear</button>
+
+</div>
+
+<script>
+
+const API = "http://127.0.0.1:8000/api/observaciones/";
+
+
+function cargarObservaciones() {
+    fetch(API + "?nocache=" + Math.random())
+    .then(res => res.json())
+    .then(data => {
+
+        console.log("Datos:", data);
+
+        let lista = document.getElementById("lista");
+        lista.innerHTML = "";
+
+        data.forEach(obs => {
+            let li = document.createElement("li");
+
+            li.innerText =
+                "ID: " + obs.id +
+                " | " + obs.aprendiz +
+                " | " + obs.descripcion;
+
+            lista.appendChild(li);
+        });
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+
+function buscarPorId() {
+    let id = document.getElementById("idObs").value;
+
+    if (!id) {
+        alert("Ingrese un ID");
+        return;
+    }
+
+    fetch(API + id + "/")
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("detalle").innerText =
+            "Aprendiz: " + data.aprendiz +
+            " | Tipo: " + data.tipo +
+            " | Severidad: " + data.severidad +
+            " | Descripción: " + data.descripcion;
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+
+function crearObservacion() {
+
+    let aprendiz = document.getElementById("aprendiz").value;
+    let tipo = document.getElementById("tipo").value;
+    let severidad = document.getElementById("severidad").value;
+    let descripcion = document.getElementById("descripcion").value;
+
+    if (!aprendiz || !tipo || !severidad || !descripcion) {
+        alert("Complete todos los campos");
+        return;
+    }
+
+    console.log("Datos enviados:", aprendiz, tipo, severidad, descripcion);
+
+    fetch(API, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            aprendiz: aprendiz,
+            tipo: tipo,
+            severidad: severidad,
+            descripcion: descripcion
+        })
+    })
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => { throw err; });
+        }
+        return res.json();
+    })
+    .then(data => {
+        console.log("Respuesta:", data);
+        alert("Creado correctamente");
+
+        document.getElementById("aprendiz").value = "";
+        document.getElementById("tipo").value = "";
+        document.getElementById("severidad").value = "";
+        document.getElementById("descripcion").value = "";
+
+        cargarObservaciones();
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Error al crear (revisa valores)");
+    });
+}
+
+</script>
+
+</body>
+</html>

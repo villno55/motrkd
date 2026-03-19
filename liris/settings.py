@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework',
     'users',
-    'corsheaders'
+    'corsheaders',
+    'observador',
 
 ]
 
@@ -123,6 +124,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 AUTH_USER_MODEL = 'users.User'
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
